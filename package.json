@@ -1,0 +1,8 @@
+{
+  "name": "surf-beach-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:zEduardofaria/surf-beach-api.git",
+  "author": "Eduardo Faria <z.eduardofaria@gmail.com>",
+  "license": "MIT"
+}
