@@ -9,7 +9,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:functional": "jest --projects ./test --forceExit --runInBand",
     "lint": "eslint ./src ./test --ext .ts",
-    "lint:fix": "eslint ./src ./test --ext .ts --fix"
+    "lint:fix": "eslint ./src ./test --ext .ts --fix",
+    "style:check": "prettier --check 'src/**/*.ts' 'test/**/*.ts'",
+    "style:fix": "prettier --write 'src/**/*.ts' 'test/**/*.ts'"
   },
   "repository": "git@github.com:zEduardofaria/surf-beach-api.git",
   "author": "Eduardo Faria <z.eduardofaria@gmail.com>",
@@ -25,6 +27,7 @@
     "@typescript-eslint/parser": "^5.27.1",
     "eslint": "^8.17.0",
     "jest": "^28.1.1",
+    "prettier": "^2.6.2",
     "supertest": "^6.2.3",
     "ts-jest": "^28.0.4",
     "ts-node-dev": "^2.0.0",
