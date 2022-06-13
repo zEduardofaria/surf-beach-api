@@ -58,10 +58,7 @@ This project was intended to be a way to improve my skills in creating APIs, amo
 
 ## Features
 
-- [x] Auth
-
-  - [x] Sign in
-  - [x] Sign up
+- [x] External API client to consume meteorological information
 
 ---
 
