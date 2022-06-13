@@ -96,8 +96,8 @@ $ yarn start:dev
 
 ```bash
 
-# Restart DB, and run it again with Docker compose
-$ yarn test:e2e
+# Run unit tests
+$ yarn test:unit
 
 ```
 
