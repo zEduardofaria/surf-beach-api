@@ -1,25 +1,32 @@
 import { StormGlass } from '@src/clients/stormGlass'
-import stormGlassWeather3HoursFixture from '@test/fixtures/stormglass_weather_3_hours.json'
-import stormGlassNormalized3HoursFixture from '@test/fixtures/stormglass_normalized_response_3_hours.json'
+import stormglassNormalizedResponseFixture from '@test/fixtures/stormglass_normalized_response_3_hours.json'
+import * as stormglassWeatherPointFixture from '@test/fixtures/stormglass_weather_3_hours.json'
 import * as HTTPUtil from '@src/util/request'
 
 jest.mock('@src/util/request')
 
-describe('StormFlass client', () => {
+describe('StormGlass client', () => {
+  /**
+   * Used for static method's mocks
+   */
+  const MockedRequestClass = HTTPUtil.Request as jest.Mocked<
+    typeof HTTPUtil.Request
+  >
+  /**
+   * Used for instance method's mocks
+   */
   const mockedRequest = new HTTPUtil.Request() as jest.Mocked<HTTPUtil.Request>
-
   it('should return the normalized forecast from the StormGlass service', async () => {
     const lat = -33.792726
-    const lng = -33.792726
+    const lng = 151.289824
 
     mockedRequest.get.mockResolvedValue({
-      data: stormGlassWeather3HoursFixture,
+      data: stormglassWeatherPointFixture,
     } as HTTPUtil.Response)
 
     const stormGlass = new StormGlass(mockedRequest)
     const response = await stormGlass.fetchPoints(lat, lng)
-
-    expect(response).toEqual(stormGlassNormalized3HoursFixture)
+    expect(response).toEqual(stormglassNormalizedResponseFixture)
   })
 
   it('should exclude incomplete data points', async () => {
@@ -49,12 +56,12 @@ describe('StormFlass client', () => {
     const lat = -33.792726
     const lng = 151.289824
 
-    mockedRequest.get.mockRejectedValue({ message: 'Network Error' })
+    mockedRequest.get.mockRejectedValue('Network Error')
 
     const stormGlass = new StormGlass(mockedRequest)
 
     await expect(stormGlass.fetchPoints(lat, lng)).rejects.toThrow(
-      'Unexpected error when trying to communicate to StormGlass: Network Error'
+      'Unexpected error when trying to communicate to StormGlass: "Network Error"'
     )
   })
 
@@ -74,6 +81,13 @@ describe('StormFlass client', () => {
         data: { errors: ['Rate Limit reached'] },
       })
     )
+
+    MockedRequestClass.isRequestError.mockReturnValue(true)
+
+    MockedRequestClass.extractErrorData.mockReturnValue({
+      status: 429,
+      data: { errors: ['Rate Limit reached'] },
+    })
 
     const stormGlass = new StormGlass(mockedRequest)
 

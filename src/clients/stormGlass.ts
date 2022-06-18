@@ -1,5 +1,6 @@
-import config, { IConfig } from 'config'
 import { InternalError } from '@src/util/errors/internal-error'
+import config, { IConfig } from 'config'
+// Another way to have similar behaviour to TS namespaces
 import * as HTTPUtil from '@src/util/request'
 
 export interface StormGlassPointSource {
@@ -32,29 +33,39 @@ export interface ForecastPoint {
   windSpeed: number
 }
 
+/**
+ * This error type is used when a request reaches out to the StormGlass API but returns an error
+ */
 export class StormGlassUnexpectedResponseError extends InternalError {
   constructor(message: string) {
     super(message)
   }
 }
 
+/**
+ * This error type is used when something breaks before the request reaches out to the StormGlass API
+ * eg: Network error, or request validation error
+ */
 export class ClientRequestError extends InternalError {
   constructor(message: string) {
-    const internalMessage = `Unexpected error when trying to communicate to StormGlass`
-
+    const internalMessage =
+      'Unexpected error when trying to communicate to StormGlass'
     super(`${internalMessage}: ${message}`)
   }
 }
 
 export class StormGlassResponseError extends InternalError {
   constructor(message: string) {
-    const internalMessage = `Unexpected error returned by the StormGlass service`
-
+    const internalMessage =
+      'Unexpected error returned by the StormGlass service'
     super(`${internalMessage}: ${message}`)
   }
 }
 
-const stormGlassResourceConfig: IConfig = config.get('App.resources.StormGlass')
+/**
+ * We could have proper type for the configuration
+ */
+const stormglassResourceConfig: IConfig = config.get('App.resources.StormGlass')
 
 export class StormGlass {
   readonly stormGlassAPIParams =
@@ -66,20 +77,21 @@ export class StormGlass {
   public async fetchPoints(lat: number, lng: number): Promise<ForecastPoint[]> {
     try {
       const response = await this.request.get<StormGlassForecastResponse>(
-        `${stormGlassResourceConfig.get('apiUrl')}/weather/point?params=${
+        `${stormglassResourceConfig.get(
+          'apiUrl'
+        )}/weather/point?lat=${lat}&lng=${lng}&params=${
           this.stormGlassAPIParams
-        }&source=${
-          this.stormGlassAPISource
-        }&lat=${lat}&lng=${lng}&v=1EsZ5m_bl5o`,
+        }&source=${this.stormGlassAPISource}`,
         {
           headers: {
-            Authorization: stormGlassResourceConfig.get('apiToken'),
+            Authorization: stormglassResourceConfig.get('apiToken'),
           },
         }
       )
-
       return this.normalizeResponse(response.data)
     } catch (err) {
+      //@Updated 2022 to support Error as unknown
+      //https://devblogs.microsoft.com/typescript/announcing-typescript-4-4/#use-unknown-catch-variables
       if (err instanceof Error && HTTPUtil.Request.isRequestError(err)) {
         const error = HTTPUtil.Request.extractErrorData(err)
         throw new StormGlassResponseError(
@@ -92,7 +104,6 @@ export class StormGlass {
       throw new ClientRequestError(JSON.stringify(err))
     }
   }
-
   private normalizeResponse(
     points: StormGlassForecastResponse
   ): ForecastPoint[] {
